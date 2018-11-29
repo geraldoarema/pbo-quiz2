@@ -5,6 +5,9 @@
  */
 package com.geraldo.quiz2;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 /**
  *
  * @author ALDO
@@ -149,6 +152,9 @@ public class Panel extends javax.swing.JFrame {
 
     private void BTnewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BTnewActionPerformed
         // TODO add your handling code here:
+          int i = 0;
+          i++; 
+        
        BTadd.setEnabled(true);
        BTcancel.setEnabled(true);
        BTremove.setEnabled(true);
@@ -156,6 +162,13 @@ public class Panel extends javax.swing.JFrame {
        CBitems.setEnabled(true);
        TFjml.setEnabled(true);
        TBLtransaksi.setEnabled(true);
+       
+       Date d = new Date();
+       SimpleDateFormat sdf = new SimpleDateFormat("yyMMdd");
+       String dateStr = sdf.format(d);
+       
+       TFcode.setText(dateStr + "0" + i);
+       BTnew.setEnabled(false);
        
         
     }//GEN-LAST:event_BTnewActionPerformed
