@@ -9,6 +9,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 
 /**
@@ -21,9 +22,15 @@ public class Panel extends javax.swing.JFrame {
     private String code;
     private DefaultTableModel TBLmodel;
     private DefaultComboBoxModel CBmodel;
+    private ArrayList<Item> brg = new ArrayList<>();
    
     
     public Panel() {
+        initComponents();
+        Toko toko = new Toko();
+        this.CBmodel = new DefaultComboBoxModel<>(toko.getJenisNama().toArray());
+        TblTransaksi tbltransaksi = new TblTransaksi();
+        this.TBLmodel = new DefaultTableModel(tbltransaksi.getKolomNama(),0);
         initComponents();
         
         TFcode.setEnabled(false);
@@ -36,6 +43,85 @@ public class Panel extends javax.swing.JFrame {
         TFjml.setEnabled(false);
         
         
+    }
+    
+    private void IncreamentId(){
+    this.id += 1;
+    }
+    
+    private void DecreamentId(){
+        this.id -= 1;
+    }
+    
+    private Object[] addItem(String nama , int jumlah){
+        float harga = 0;
+        Toko items = new Toko();
+        for(int i = 0 ; i < items.getHargaBarang().size();i++){
+            if(nama.equalsIgnoreCase(items.getJenisNama().get(i))){
+                harga = items.getHargaBarang().get(i);
+            }
+        }
+        Object[] ob = {
+            nama,
+            harga,
+            jumlah
+        };
+        return ob;
+    } 
+    
+    private void updateJumlah(String nama,int add){
+    ArrayList<String> item = new ArrayList<>();
+    for(int i = 0;i < TBLmodel.getRowCount();i++){
+        item.add(TBLmodel.getValueAt(i, 0).toString());
+    }
+    for(int i = 0;i < item.size();i++){
+        if(item.get(i).equals(nama)){
+            int jumlah = new Integer (TBLmodel.getValueAt(i,2).toString());
+            TBLmodel.setValueAt(jumlah + add, i,2);
+        }
+    }
+    }
+    
+    private boolean Duplicate(String nama){
+        boolean result = false;
+        ArrayList<String> item = new ArrayList<>();
+        for(int i = 0; i < TBLmodel.getRowCount();i++){
+            item.add(TBLmodel.getValueAt(i,0).toString());
+        }
+        for(String i : item){
+            if(i.equals(nama)){
+                result = true;
+            }
+        }
+        return result;
+    }
+    
+    private void belanja(){
+        if(isEmpty()){
+            this.BTsave.setEnabled(false);
+            this.BTremove.setEnabled(false);
+        }else{
+            this.BTremove.setEnabled(true);
+            this.BTremove.setEnabled(true);
+        }
+    }
+    
+    private boolean isEmpty(){
+        return this.TBLtransaksi.getModel().getRowCount() <=0;
+    }
+    
+    private void newTransaksi(){
+        this.TFjml.setText("");
+        this.TFcode.setText("");
+        this.BTnew.setEnabled(false);
+        this.BTsave.setEnabled(false);
+        this.BTcancel.setEnabled(false);
+        this.BTadd.setEnabled(false);
+        this.BTremove.setEnabled(false);
+        this.TFjml.setEnabled(false);
+        this.CBitems.setEnabled(false);
+        this.TBLmodel.setRowCount(0);
+        this.brg.clear();
     }
 
     /**
@@ -70,8 +156,18 @@ public class Panel extends javax.swing.JFrame {
         });
 
         BTadd.setText("Add");
+        BTadd.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                BTaddActionPerformed(evt);
+            }
+        });
 
         BTremove.setText("Remove");
+        BTremove.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                BTremoveActionPerformed(evt);
+            }
+        });
 
         jLabel1.setText("Code");
 
@@ -90,8 +186,18 @@ public class Panel extends javax.swing.JFrame {
         jScrollPane1.setViewportView(TBLtransaksi);
 
         BTsave.setText("Save");
+        BTsave.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                BTsaveActionPerformed(evt);
+            }
+        });
 
         BTcancel.setText("Cancel");
+        BTcancel.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                BTcancelActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -178,6 +284,58 @@ public class Panel extends javax.swing.JFrame {
        
         
     }//GEN-LAST:event_BTnewActionPerformed
+
+    private void BTaddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BTaddActionPerformed
+        // TODO add your handling code here:
+        String nama = this.CBitems.getSelectedItem().toString();
+        int jumlah = new Integer(this.TFjml.getText());
+        if(Duplicate(nama)){
+            updateJumlah(nama,jumlah);
+        }else{
+            TBLmodel.addRow(addItem(nama,jumlah));
+        }
+        this.belanja();
+    }//GEN-LAST:event_BTaddActionPerformed
+
+    private void BTsaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BTsaveActionPerformed
+        // TODO add your handling code here:
+        try{
+            for(int i = 0; i < TBLmodel.getRowCount();i++){
+                String nama = TBLmodel.getValueAt(i, 0).toString();
+                float harga = new Float(TBLmodel.getValueAt(i, 1).toString());
+                int jumlah = new Integer(TBLmodel.getValueAt(i,2).toString());
+               this.brg.add(new Item(nama,harga,jumlah));
+            }
+            Transaksi transaksi = new Transaksi(this.code,this.brg);
+            StringBuilder sbr = new StringBuilder();
+            sbr.append(transaksi.Pembayaran());
+            JOptionPane.showMessageDialog(this,sbr,"Transaksi",JOptionPane.INFORMATION_MESSAGE);
+            newTransaksi();
+        }catch(Exception e){
+            System.out.println(e.getMessage());
+        }
+    }//GEN-LAST:event_BTsaveActionPerformed
+
+    private void BTcancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BTcancelActionPerformed
+        // TODO add your handling code here:
+        newTransaksi();
+        this.DecreamentId();
+    }//GEN-LAST:event_BTcancelActionPerformed
+
+    private void BTremoveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BTremoveActionPerformed
+        // TODO add your handling code here:
+        if(TBLtransaksi.getSelectedRow() < 0){
+            String sbr = "Pilih item mau di hapus";
+            JOptionPane.showMessageDialog(this,sbr,"Informasi",JOptionPane.INFORMATION_MESSAGE);
+            
+        }else{
+            int count = TBLtransaksi.getSelectedRows().length;
+            for(int i = 0;i < count;i++){
+                TBLmodel.removeRow(TBLtransaksi.getSelectedRow());
+            }
+        }
+        this.belanja();
+    }//GEN-LAST:event_BTremoveActionPerformed
 
     /**
      * @param args the command line arguments
