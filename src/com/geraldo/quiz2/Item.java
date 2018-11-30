@@ -53,7 +53,9 @@ public class Item {
         return  this.nama;
     }
     
-    
+    public float getTotal(){
+    return this.harga * this.jumlah ;
+    }
     
     
 }
