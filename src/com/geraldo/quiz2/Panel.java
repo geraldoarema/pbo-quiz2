@@ -6,7 +6,10 @@
 package com.geraldo.quiz2;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.table.DefaultTableModel;
 
 /**
  *
@@ -14,9 +17,12 @@ import java.util.Date;
  */
 public class Panel extends javax.swing.JFrame {
 
-    /**
-     * Creates new form Panel
-     */
+    private int id = 0;
+    private String code;
+    private DefaultTableModel TBLmodel;
+    private DefaultComboBoxModel CBmodel;
+   
+    
     public Panel() {
         initComponents();
         
